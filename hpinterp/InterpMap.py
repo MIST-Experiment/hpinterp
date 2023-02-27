@@ -1,10 +1,10 @@
-from typing import Sequence, Callable, Union, List
+from typing import Callable, List
 
+import healpy as hp
+import numba as nb
 import numpy as np
 from scipy import interpolate
-import numba as nb
-import healpy as hp
-hp.pixelfunc
+
 
 def lonlat2thetaphi(lon, lat):
     return np.pi / 2.0 - np.radians(lat), np.radians(lon)
@@ -17,7 +17,7 @@ def par_interp(m: np.ndarray, x: np.ndarray, y: np.ndarray, dx: float, dy: float
     for i in nb.prange(npix):
         while x[i] >= np.pi:
             x[i] -= np.pi
-        while y[i] >= 2*np.pi:
+        while y[i] >= 2 * np.pi:
             x[i] -= np.pi
         ix = int(x[i] / dx)
         iy = int(y[i] / dy)
