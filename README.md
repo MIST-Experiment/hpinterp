@@ -25,7 +25,7 @@ interp_map = InterpMap(map_)
 # Generating example coordinate grid of co-latitude and longitude in radians
 npoints = int(1e5)
 theta = np.random.rand(npoints) * np.pi
-phi = np.random.rand(2 * npoints) * 2 * np.pi
+phi = np.random.rand(npoints) * 2 * np.pi
 
 # Get interpolated values. Set lonlat=True if using longitude and latitude in degrees
 interp_result = interp_map(theta, phi)
