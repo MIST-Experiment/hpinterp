@@ -11,7 +11,7 @@ def lonlat2thetaphi(lon, lat):
 
 
 @nb.njit(parallel=True)
-def par_interp(m: np.ndarray, x: np.ndarray, y: np.ndarray, dx: float, dy: float):
+def par_interp(m: np.ndarray, x: np.ndarray, y: np.ndarray, dx: float, dy: float) -> np.ndarray:
     npix = len(x)
     out = np.empty(npix, dtype=np.float64)
     for i in nb.prange(npix):
@@ -96,7 +96,7 @@ class InterpMap:
 
         self.interp_map[:, -1] = self.interp_map[:, 0]  # Set up periodic conditions
 
-    def get_interp_val(self, theta: np.ndarray, phi: np.ndarray, lonlat: bool = False):
+    def get_interp_val(self, theta: np.ndarray, phi: np.ndarray, lonlat: bool = False) -> np.ndarray:
         """
         :param theta: Co-latitude [rad] / latitude [deg]
         :param phi: Longitude [rad] / longitude [deg]
@@ -117,7 +117,7 @@ class InterpMap:
             out.ravel()[:] = par_interp(self.interp_map, theta.ravel(), phi.ravel(), self.d_th, self.d_phi)
             return out
 
-    def __call__(self, theta: np.ndarray, phi: np.ndarray, lonlat: bool = False):
+    def __call__(self, theta: np.ndarray, phi: np.ndarray, lonlat: bool = False) -> np.ndarray:
         """
         :param theta: Co-latitude [rad] / latitude [deg]
         :param phi: Longitude [rad] / longitude [deg]
