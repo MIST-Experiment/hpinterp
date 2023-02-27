@@ -3,7 +3,13 @@
 A faster (~100x) and more accurate interpolation algorithm for HEALPix maps by Prof. Jonathan Sievers. The code
 pre-interpolates the map data in advance, saving time at the evaluation stage. 
 
-Example:
+## Installation
+
+```
+pip install hpinterp
+```
+
+## Example
 
 ```python
 import numpy as np
