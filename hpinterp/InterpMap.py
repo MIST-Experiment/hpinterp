@@ -4,7 +4,7 @@ import numpy as np
 from scipy import interpolate
 import numba as nb
 import healpy as hp
-
+hp.pixelfunc
 
 def lonlat2thetaphi(lon, lat):
     return np.pi / 2.0 - np.radians(lat), np.radians(lon)
@@ -107,6 +107,9 @@ class InterpMap:
         if not theta.shape == phi.shape:
             raise ValueError("Theta and phi must have the same dimension and shape")
 
+        if lonlat:
+            theta, phi = lonlat2thetaphi(theta, phi)
+
         if theta.ndim == 1:
             return par_interp(self.interp_map, theta, phi, self.d_th, self.d_phi)
         else:
@@ -114,10 +117,7 @@ class InterpMap:
             out.ravel()[:] = par_interp(self.interp_map, theta.ravel(), phi.ravel(), self.d_th, self.d_phi)
             return out
 
-
-
-
-    def __call__(self, *args, **kwargs):
+    def __call__(self, theta: np.ndarray, phi: np.ndarray, lonlat: bool = False):
         """
         :param theta: Co-latitude [rad] / latitude [deg]
         :param phi: Longitude [rad] / longitude [deg]
@@ -125,4 +125,4 @@ class InterpMap:
                        otherwise, they are co-latitude and longitude in radians.
         :return: Interpolated values at requested coordinates.
         """
-        return self.get_interp_val(*args, **kwargs)
+        return self.get_interp_val(theta, phi, lonlat)
