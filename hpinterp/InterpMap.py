@@ -11,12 +11,20 @@ def lonlat2thetaphi(lon, lat):
 
 
 @nb.njit(parallel=True)
-def par_interp(m: np.ndarray, x: Sequence[float], y: Sequence[float], dx: float, dy: float):
+def par_interp(m: np.ndarray, x: np.ndarray, y: np.ndarray, dx: float, dy: float):
     npix = len(x)
     out = np.empty(npix, dtype=np.float64)
     for i in nb.prange(npix):
+        while x[i] >= np.pi:
+            x[i] -= np.pi
+        while y[i] >= 2*np.pi:
+            x[i] -= np.pi
         ix = int(x[i] / dx)
         iy = int(y[i] / dy)
+        if ix == m.shape[0]:
+            ix = 0
+        if iy == m.shape[1]:
+            iy = 0
         fx = x[i] / dx - ix
         fy = y[i] / dy - iy
         out[i] = (m[ix, iy] * (1 - fx) * (1 - fy) + m[ix, iy + 1] * (1 - fx) * fy +
@@ -88,7 +96,7 @@ class InterpMap:
 
         self.interp_map[:, -1] = self.interp_map[:, 0]  # Set up periodic conditions
 
-    def get_interp_val(self, theta: Sequence[float], phi: Sequence[float], lonlat: bool = False):
+    def get_interp_val(self, theta: np.ndarray, phi: np.ndarray, lonlat: bool = False):
         """
         :param theta: Co-latitude [rad] / latitude [deg]
         :param phi: Longitude [rad] / longitude [deg]
@@ -96,9 +104,18 @@ class InterpMap:
                        otherwise, they are co-latitude and longitude in radians.
         :return: Interpolated values at requested coordinates.
         """
-        if lonlat:
-            theta, phi = lonlat2thetaphi(theta, phi)
-        return par_interp(self.interp_map, theta, phi, self.d_th, self.d_phi)
+        if not theta.shape == phi.shape:
+            raise ValueError("Theta and phi must have the same dimension and shape")
+
+        if theta.ndim == 1:
+            return par_interp(self.interp_map, theta, phi, self.d_th, self.d_phi)
+        else:
+            out = np.empty(theta.shape)
+            out.ravel()[:] = par_interp(self.interp_map, theta.ravel(), phi.ravel(), self.d_th, self.d_phi)
+            return out
+
+
+
 
     def __call__(self, *args, **kwargs):
         """
